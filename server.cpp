@@ -20,6 +20,9 @@ namespace fs = std::filesystem;
 constexpr const char* kScreenshotDir = "/home/collin/hackmatrix/screenshots";
 constexpr const char* kPinnedScreenshotFile = "18-12-2025 19-23-43.png";
 constexpr const char* kPinnedScreenshotPath = "/18-12-2025%2019-23-43.png";
+constexpr const char* kFaviconFile = "favicon.png";
+constexpr const char* kFaviconPath = "/favicon.png";
+constexpr const char* kFaviconAlias = "/favicon.ico";
 
 std::string guess_mime_type(const fs::path& path) {
 	auto ext = path.extension().string();
@@ -114,7 +117,9 @@ void handle_client(int client_fd, std::string screenshot_dir) {
 
 	if (path == "/" || path == "/index.html") {
 		std::ostringstream body;
-		body << "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Agartha Online</title></head><body>";
+		body << "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Agartha Online</title>"
+		     << "<link rel=\"icon\" href=\"" << kFaviconPath << "\" type=\"image/png\">"
+		     << "</head><body>";
 		body << "<h1>Agartha Online</h1>";
 		body << "<p>Join the <a href=\"https://discord.gg/ZWB35yau\" >discord</a>, say hello and ask to waitlist. Once there are 10 waitlists, I'll launch the alpha.</p>";
 		if (LATEST_SCREENSHOT) {
@@ -141,6 +146,28 @@ void handle_client(int client_fd, std::string screenshot_dir) {
 
 		body << "</body></html>";
 		send_response(client_fd, "200 OK", "text/html; charset=UTF-8", body.str(), head_only);
+		::close(client_fd);
+		return;
+	}
+
+	if (path == kFaviconPath || path == kFaviconAlias) {
+		fs::path favicon_path(kFaviconFile);
+		if (!fs::exists(favicon_path)) {
+			send_response(client_fd, "404 Not Found", "text/plain; charset=UTF-8", "Favicon missing\n", head_only);
+			::close(client_fd);
+			return;
+		}
+
+		std::ifstream input(favicon_path, std::ios::binary);
+		if (!input) {
+			send_response(client_fd, "500 Internal Server Error", "text/plain; charset=UTF-8", "Failed to open favicon\n", head_only);
+			::close(client_fd);
+			return;
+		}
+
+		std::vector<char> data((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+		const auto mime = guess_mime_type(favicon_path);
+		send_binary_response(client_fd, "200 OK", mime, data, head_only);
 		::close(client_fd);
 		return;
 	}
