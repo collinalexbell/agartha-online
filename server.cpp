@@ -116,6 +116,13 @@ void handle_client(int client_fd, std::string screenshot_dir) {
         body << "<p>Checkout HackMatrix multi-player desktop engine on "
              << "<a href=\"https://github.com/collinalexbell/hackmatrix\">GitHub</a> and "
              << "<a href=\"https://www.youtube.com/watch?v=P2c7QRIz8IA\">YouTube</a>.</p>";
+        body << "<div style=\"margin:16px 0;max-width:960px;\">"
+             << "<iframe width=\"100%\" height=\"540\" "
+             << "src=\"https://www.youtube.com/embed/P2c7QRIz8IA\" "
+             << "title=\"HackMatrix\" frameborder=\"0\" "
+             << "allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" "
+             << "allowfullscreen></iframe>"
+             << "</div>";
         if (latest) {
             body << "<p>Showing latest screenshot from " << screenshot_dir << ":</p>";
             body << "<img src=\"/latest-image\" alt=\"Latest screenshot\" style=\"max-width:100%;height:auto;\">";
