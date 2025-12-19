@@ -18,6 +18,8 @@
 namespace fs = std::filesystem;
 
 constexpr const char* kScreenshotDir = "/home/collin/hackmatrix/screenshots";
+constexpr const char* kPinnedScreenshotFile = "18-12-2025 19-23-43.png";
+constexpr const char* kPinnedScreenshotPath = "/18-12-2025%2019-23-43.png";
 
 std::string guess_mime_type(const fs::path& path) {
 	auto ext = path.extension().string();
@@ -111,18 +113,17 @@ void handle_client(int client_fd, std::string screenshot_dir) {
 	}
 
 	if (path == "/" || path == "/index.html") {
-		auto latest = latest_screenshot(screenshot_dir);
 		std::ostringstream body;
 		body << "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Agartha Online</title></head><body>";
 		body << "<h1>Agartha Online</h1>";
 		body << "<p>Join the <a href=\"https://discord.gg/ZWB35yau\" >discord</a>, say hello and ask to waitlist. Once there are 10 waitlists, I'll launch the alpha.</p>";
-		if(LATEST_SCREENSHOT) {
-			if (latest) {
+		if (LATEST_SCREENSHOT) {
+			if (fs::exists(kPinnedScreenshotFile)) {
 				body << "<div style=\"width:50%; display:block; float:left\">";
-				body << "<img src=\"/latest-image\" alt=\"Latest screenshot\" style=\"max-width:100%;height:auto;\">";
+				body << "<img src=\"" << kPinnedScreenshotPath << "\" alt=\"Pinned screenshot\" style=\"max-width:100%;height:auto;\">";
 				body << "</div>";
 			} else {
-				body << "<p>No screenshots found in " << screenshot_dir << ".</p>";
+				body << "<p>Screenshot " << kPinnedScreenshotFile << " is missing.</p>";
 			}
 		}
 
@@ -140,6 +141,28 @@ void handle_client(int client_fd, std::string screenshot_dir) {
 
 		body << "</body></html>";
 		send_response(client_fd, "200 OK", "text/html; charset=UTF-8", body.str(), head_only);
+		::close(client_fd);
+		return;
+	}
+
+	if (path == kPinnedScreenshotPath || path == "/18-12-2025 19-23-43.png") {
+		fs::path pinned_path(kPinnedScreenshotFile);
+		if (!fs::exists(pinned_path)) {
+			send_response(client_fd, "404 Not Found", "text/plain; charset=UTF-8", "Pinned screenshot missing\n", head_only);
+			::close(client_fd);
+			return;
+		}
+
+		std::ifstream input(pinned_path, std::ios::binary);
+		if (!input) {
+			send_response(client_fd, "500 Internal Server Error", "text/plain; charset=UTF-8", "Failed to open pinned screenshot\n", head_only);
+			::close(client_fd);
+			return;
+		}
+
+		std::vector<char> data((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+		const auto mime = guess_mime_type(pinned_path);
+		send_binary_response(client_fd, "200 OK", mime, data, head_only);
 		::close(client_fd);
 		return;
 	}
