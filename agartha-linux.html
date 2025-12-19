@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HackMatrix Linux | Agartha</title>
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --panel: #131823;
+      --text: #e9eef7;
+      --muted: #9fb0c7;
+      --accent: #6af0c4;
+      --accent-2: #5fa8ff;
+      --border: #1f2633;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(106, 240, 196, 0.12), transparent 40%),
+                  radial-gradient(circle at 80% 10%, rgba(95, 168, 255, 0.1), transparent 35%),
+                  var(--bg);
+      color: var(--text);
+      padding: 28px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    header img {
+      width: 48px;
+      height: 48px;
+    }
+    h1 { margin: 0; letter-spacing: 0.5px; }
+    p { color: var(--muted); line-height: 1.6; max-width: 880px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.26);
+    }
+    .card h2 { margin-top: 0; margin-bottom: 8px; }
+    .badge {
+      display: inline-block;
+      background: rgba(106, 240, 196, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(106, 240, 196, 0.4);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      margin-top: 8px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      color: var(--text);
+    }
+    label { cursor: pointer; }
+    ul { margin: 10px 0 0 18px; color: var(--text); }
+    .cta {
+      margin-top: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      color: #0c111a;
+      border-radius: 10px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+    }
+    .cta:hover { transform: translateY(-1px); }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/favicon.png" alt="HackMatrix icon" />
+    <div>
+      <h1>HackMatrix Linux</h1>
+      <div class="badge">Agartha experimental desktop stack</div>
+    </div>
+  </header>
+
+  <p>HackMatrix Linux is a lean workstation spin built for low-latency multiplayer desktop experiments, reproducible deployments, and fast rebuilds. Pick your favorite minimal base, wire in the HackMatrix engine, and keep a predictable path from dev to production nodes.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="checkbox-row">
+        <input type="checkbox" id="arch-base" name="arch-base" />
+        <label for="arch-base"><strong>Arch Linux base</strong></label>
+      </div>
+      <p>Rolling release tuned for bleeding-edge kernels and drivers. Great when you want the freshest Mesa stack and quick patch iterations.</p>
+      <ul>
+        <li>Pacman + paru for fast package syncs</li>
+        <li>Preset kernel config with low-latency options</li>
+        <li>systemd boot with minimal units enabled</li>
+        <li>Optional PipeWire profile for voice + stream capture</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="checkbox-row">
+        <input type="checkbox" id="gentoo-base" name="gentoo-base" />
+        <label for="gentoo-base"><strong>Gentoo base</strong></label>
+      </div>
+      <p>Source-first build tailored to your hardware. Ideal when you need USE-flag control and predictable ABI surfaces for native modules.</p>
+      <ul>
+        <li>Clang/LLVM toolchain defaults for smaller binaries</li>
+        <li>Curated USE flags for SDL, Vulkan, PipeWire</li>
+        <li>OpenRC or systemd selectable during bootstrap</li>
+        <li>Binary cache option for distributed node rollouts</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 20px;">
+    <h2>HackMatrix layer</h2>
+    <p>Both bases ship with the HackMatrix runtime, message bus, and sample scene graphs pre-baked. A small setup script wires in GPU caps detection, installs the multi-player desktop agent, and seeds example rooms so you can test roundtrip latency immediately.</p>
+    <ul>
+      <li>Seat aware agent with sandboxed IPC</li>
+      <li>Wayland-first, X11 fallback</li>
+      <li>Optional Steam Input overlay for controller testing</li>
+      <li>Cloud init hooks for remote capture nodes</li>
+    </ul>
+    <a class="cta" href="https://github.com/collinalexbell/hackmatrix" target="_blank" rel="noopener">Explore HackMatrix on GitHub</a>
+  </div>
+</body>
+</html>

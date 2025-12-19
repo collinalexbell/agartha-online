@@ -143,6 +143,18 @@ void handle_client(int client_fd, std::string screenshot_dir) {
 		return;
 	}
 
+	if (path == "/agartha-linux" || path == "/agartha-linux.html") {
+		std::string html;
+		if (!load_file_to_string("agartha-linux.html", html)) {
+			send_response(client_fd, "500 Internal Server Error", "text/plain; charset=UTF-8", "Failed to load agartha-linux page\n", head_only);
+			::close(client_fd);
+			return;
+		}
+		send_response(client_fd, "200 OK", "text/html; charset=UTF-8", html, head_only);
+		::close(client_fd);
+		return;
+	}
+
 	if (path == kFaviconPath || path == kFaviconAlias) {
 		fs::path favicon_path(kFaviconFile);
 		if (!fs::exists(favicon_path)) {
