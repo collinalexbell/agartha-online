@@ -94,6 +94,15 @@ bool send_binary_response(int fd, const std::string& status, const std::string& 
 	return send_all(fd, body.data(), body.size());
 }
 
+bool load_file_to_string(const fs::path& path, std::string& out) {
+	std::ifstream input(path, std::ios::binary);
+	if (!input) return false;
+	std::ostringstream ss;
+	ss << input.rdbuf();
+	out = ss.str();
+	return true;
+}
+
 void handle_client(int client_fd, std::string screenshot_dir) {
 	std::vector<char> buffer(4096);
 	const ssize_t n = ::recv(client_fd, buffer.data(), buffer.size() - 1, 0);
@@ -116,36 +125,13 @@ void handle_client(int client_fd, std::string screenshot_dir) {
 	}
 
 	if (path == "/" || path == "/index.html") {
-		std::ostringstream body;
-		body << "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Agartha Online</title>"
-		     << "<link rel=\"icon\" href=\"" << kFaviconPath << "\" type=\"image/png\">"
-		     << "</head><body>";
-		body << "<h1>Agartha Online</h1>";
-		body << "<p>Join the <a href=\"https://discord.gg/ZWB35yau\" >discord</a>, say hello and ask to waitlist. Once there are 10 waitlists, I'll launch the alpha.</p>";
-		if (LATEST_SCREENSHOT) {
-			if (fs::exists(kPinnedScreenshotFile)) {
-				body << "<div style=\"width:50%; display:block; float:left\">";
-				body << "<img src=\"" << kPinnedScreenshotPath << "\" alt=\"Pinned screenshot\" style=\"max-width:100%;height:auto;\">";
-				body << "</div>";
-			} else {
-				body << "<p>Screenshot " << kPinnedScreenshotFile << " is missing.</p>";
-			}
+		std::string html;
+		if (!load_file_to_string("index.html", html)) {
+			send_response(client_fd, "500 Internal Server Error", "text/plain; charset=UTF-8", "Failed to load index\n", head_only);
+			::close(client_fd);
+			return;
 		}
-
-		body << "<div style=\"margin:16px 0;max-width:960px;\">"
-			<< "<iframe width=\"100%\" height=\"540\" "
-			<< "src=\"https://www.youtube.com/embed/P2c7QRIz8IA\" "
-			<< "title=\"HackMatrix\" frameborder=\"0\" "
-			<< "allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" "
-			<< "allowfullscreen></iframe>"
-			<< "</div>";
-		body << "<p>Checkout HackMatrix multi-player desktop engine on "
-			<< "<a href=\"https://github.com/collinalexbell/hackmatrix\">GitHub</a> and "
-			<< "<a href=\"https://www.youtube.com/watch?v=P2c7QRIz8IA\">YouTube</a>.</p>";
-
-
-		body << "</body></html>";
-		send_response(client_fd, "200 OK", "text/html; charset=UTF-8", body.str(), head_only);
+		send_response(client_fd, "200 OK", "text/html; charset=UTF-8", html, head_only);
 		::close(client_fd);
 		return;
 	}
