@@ -113,8 +113,15 @@ void handle_client(int client_fd, std::string screenshot_dir) {
 	buffer[static_cast<size_t>(n)] = '\0';
 
 	std::istringstream request(std::string(buffer.data(), static_cast<size_t>(n)));
-	std::string method, path;
-	request >> method >> path;
+	std::string method, raw_path;
+	if (!(request >> method >> raw_path)) {
+		::close(client_fd);
+		return;
+	}
+
+	const auto query_pos = raw_path.find('?');
+	std::string path = query_pos == std::string::npos ? raw_path : raw_path.substr(0, query_pos);
+	if (path.empty()) path = "/";
 
 	const bool head_only = (method == "HEAD");
 
